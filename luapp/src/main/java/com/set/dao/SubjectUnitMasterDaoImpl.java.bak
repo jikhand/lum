@@ -1,0 +1,105 @@
+package com.set.dao;
+
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.transaction.Transactional;
+
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.set.model.DrawingCategory;
+import com.set.model.NotesMaster;
+import com.set.model.StudentNotes;
+import com.set.model.SubjectUnit;
+import com.set.model.SubjectUnitDetails;
+import com.set.model.SubjectUnitMaster;
+import com.set.model.SubjectUnitMasterDetails;
+import com.set.model.SubjectUnitMasterId;
+@Transactional
+@Repository
+public class SubjectUnitMasterDaoImpl implements SubjectUnitMasterDao {
+	@Autowired
+	private SessionFactory sessionFactory;
+	private Logger logger = Logger.getLogger("NotesDaoImp.class");
+
+	@Override
+	public void save(SubjectUnitMaster subjectUnitMaster) {
+		sessionFactory.getCurrentSession().save(subjectUnitMaster);		
+	}
+	
+	@Override
+	public SubjectUnitMasterDetails getAllSubjectUnitMaster(int pagenumber, String searchdata) {
+//		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Country.class); 
+//		criteria.add(Restrictions.eq("isDeleted",0));
+//		return (List<Country>) criteria.list();
+		int maxPageData=10;
+		int start = pagenumber * maxPageData - maxPageData;
+		int end =10;
+		String searchString="";
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(SubjectUnitMaster.class);
+		criteria.add(Restrictions.eq("is_soft_delete",0));
+		if (!searchdata.equalsIgnoreCase("null")) {
+			Disjunction or = Restrictions.disjunction();
+			or.add(Restrictions.like("topicName", searchdata, MatchMode.ANYWHERE))
+			  .add(Restrictions.like("topicMaterialFiletype", searchdata, MatchMode.ANYWHERE))
+			  .add(Restrictions.like("typeOfMaterial", searchdata, MatchMode.ANYWHERE));
+			criteria.add(or);
+			}
+		SubjectUnitMasterDetails subjectUnitMasterDetails = new SubjectUnitMasterDetails();
+		logger.info("total number of record="+criteria.list().size());
+		subjectUnitMasterDetails.setCount(criteria.list().size());
+		subjectUnitMasterDetails.setSubjectUnitMaster((List<SubjectUnitMaster>) criteria.list());
+		criteria.setFirstResult(pagenumber * maxPageData - maxPageData);
+		criteria.setMaxResults(end);	
+		return subjectUnitMasterDetails;
+	}
+	
+	@Override
+	public List<SubjectUnitMaster> getAllSubjectUnitMasterSelect() {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(SubjectUnitMaster.class); 
+		criteria.add(Restrictions.eq("is_soft_delete",0));
+		return (List<SubjectUnitMaster>) criteria.list();
+	}
+
+	@Override
+	public SubjectUnitMaster getSubjectUnitMasterById(SubjectUnitMasterId subjectUnitMasterId) {
+		return sessionFactory.getCurrentSession().get(SubjectUnitMaster.class, subjectUnitMasterId);
+	}
+
+	@Override
+	public void updateSubjectUnitMaster(SubjectUnitMaster subjectUnitMaster) {
+		sessionFactory.getCurrentSession().update(subjectUnitMaster);	
+	}
+
+	@Override
+	public void deleteSubjectUnitMaster(SubjectUnitMaster subjectUnitMaster) {
+		sessionFactory.getCurrentSession().update(subjectUnitMaster);	
+	}
+
+	@Override
+	public boolean IsExist(String notes) {
+		Criteria cr= sessionFactory.getCurrentSession()
+				.createCriteria(SubjectUnitMaster.class);
+		 cr.add(Restrictions.eq("TopicName",notes));
+		 int results = cr.list().size();
+		if(results>0) {
+			return true;
+		}else {
+			return false;	
+		}
+	}
+
+	@Override
+	public int totalSubjectUnitMaster() {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(SubjectUnitMaster.class);
+		int totalNumbers=criteria.list().size();
+		return totalNumbers;
+	}
+
+}

@@ -1,0 +1,39 @@
+package com.set.dto;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class StudentAnswerTypeDetailDto {
+	private List<StudentAnswerDetailsDto> QuestionDetailsList;
+	private String TotalMarks;
+	private int count;
+	@javax.persistence.Transient
+	private String message;
+	
+	public String getTotalMarks() {
+		return TotalMarks;
+	}
+	public void setTotalMarks(String totalMarks) {
+		TotalMarks = totalMarks;
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public List<StudentAnswerDetailsDto> getStudentAnswerDetailsDtoList() {
+		return QuestionDetailsList;
+	}
+	@JsonProperty("TestData")
+	public void setStudentAnswerDetailsDtoList(List<StudentAnswerDetailsDto> studentAnswerDetailsDtoList) {
+		this.QuestionDetailsList = studentAnswerDetailsDtoList;
+	}
+}
